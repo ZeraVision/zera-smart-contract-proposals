@@ -1,14 +1,23 @@
-pub mod zera_supply_management_proxy {
+pub mod zera_supply_management_proxy_v2 {
     use native_functions::zera::wasmedge_bindgen;
     use native_functions::zera::smart_contracts;
+    use native_functions::zera::types::U256;
+    use native_functions::zera::types;
 
     const SMART_CONTRACT_KEY: &str = "SMART_CONTRACT_";
     const INSTANCE_KEY: &str = "INSTANCE_";
+    const ZRA_CONTRACT: &str = "$ZRA+0000";
 
     #[wasmedge_bindgen]
     pub fn init() {
         unsafe{
-            smart_contracts::store_state(SMART_CONTRACT_KEY.to_string(), "zera_supply_management_v2".to_string());
+            let (authorized, rate) = smart_contracts::get_ace_data(ZRA_CONTRACT.to_string());
+            let denomination = smart_contracts::contract_denomination(ZRA_CONTRACT.to_string());
+            let one_dolla = types::string_to_u256("1000000000000000000".to_string()); //change to 100 $
+            let one_dolla_zera = (one_dolla * denomination) / rate;
+            smart_contracts::hold(ZRA_CONTRACT.to_string(), one_dolla_zera.to_string());
+            
+            smart_contracts::store_state(SMART_CONTRACT_KEY.to_string(), "zera_supply_management_v4".to_string());
             smart_contracts::store_state(INSTANCE_KEY.to_string(), "1".to_string());
         }
     }
@@ -48,7 +57,7 @@ pub mod zera_supply_management_proxy {
             }
 
 
-            let parameters_vec: Vec<String> = parameters.clone().split("##").map(|s| s.to_string()).collect();
+            let parameters_vec: Vec<String> = parameters.clone().split(",").map(|s| s.to_string()).collect();
 
             smart_contracts::delegatecall(smart_contract.clone(), instance.clone(), function.clone(), parameters_vec.clone());
         }
