@@ -8,6 +8,7 @@ pub mod zera_supply_management_v4 {
     const REFUND_PERIOD_WEEKS: u64 = 604800; // 1 week in seconds
     const MAX_REFUND_PERIOD: u64 = 11491200; // 19 weeks in seconds
 
+
     const PROXY_WALLET: &str = "5Bq2FibBdw3N664ybFbAumFhi5gpeq29FZRHq4rxkwo3";
     const TREASURY_WALLET: &str = "4Yg2ZeYrzMjVBXvU2YWtuZ7CzWR9atnQCD35TQj1kKcH";
     const ZRA_CONTRACT: &str = "$ZRA+0000";
@@ -63,7 +64,7 @@ pub mod zera_supply_management_v4 {
           smart_contracts::store_state(key_ace_data3.clone(), "333333333333333333,1000000000000000000000000000".to_string()); //done
           smart_contracts::store_state(key_ace_data4.clone(), "333333333333333333,1000000000000000000000000000".to_string()); //done
           smart_contracts::store_state(key_ace_data5.clone(), "333333333333333333,1000000000000000000000000000".to_string()); //done
-          
+
           let purchase_power1 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$RUBY+0000".to_string());
           let purchase_power2 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$RUBY+0001".to_string());
           let purchase_power3 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$RUBY+0002".to_string());
@@ -610,6 +611,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256, u64) {
         {
             let burn_str = amount_to_burn.to_string();
             smart_contracts::delegate_mint(ZRA_CONTRACT.to_string(), burn_str.clone(), BURN_WALLET.to_string(), PROXY_WALLET.to_string());
+
             let state_burn_time_ = smart_contracts::retrieve_state(BURN_TIME_KEY.to_string());
             let state_burn_time = state_burn_time_.clone();
             let mut burn_time = 0 as u64;
