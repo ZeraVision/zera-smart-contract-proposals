@@ -1,5 +1,5 @@
 [package]
-name = "zera_supply_management_proxy"
+name = "zera_supply_management_proxy_v2"
 version = "0.1.0"
 edition = "2021"
 

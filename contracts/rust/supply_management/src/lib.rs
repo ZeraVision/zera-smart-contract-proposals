@@ -1,16 +1,14 @@
-pub mod zera_supply_management_v2 {
+pub mod zera_supply_management_v4 {
     use native_functions::zera::wasmedge_bindgen;
     use native_functions::zera::smart_contracts;
     use native_functions::zera::types::U256;
     use native_functions::zera::types;
 
-    const STARTING_TIME: u64 = 1625097600; // 2021-07-01 00:00:00 UTC
-
-
     const REFUND_PERIOD: u64 = 7776000; // 3 months in seconds
     const REFUND_PERIOD_WEEKS: u64 = 604800; // 1 week in seconds
     const MAX_REFUND_PERIOD: u64 = 11491200; // 19 weeks in seconds
 
+    const PROXY_WALLET: &str = "5Bq2FibBdw3N664ybFbAumFhi5gpeq29FZRHq4rxkwo3";
     const TREASURY_WALLET: &str = "4Yg2ZeYrzMjVBXvU2YWtuZ7CzWR9atnQCD35TQj1kKcH";
     const ZRA_CONTRACT: &str = "$ZRA+0000";
     const BURN_WALLET: &str = ":fire:";
@@ -40,40 +38,52 @@ pub mod zera_supply_management_v2 {
     const ALL_TXNS_KEY: &str = "ALL_TXNS_";
     const TOKEN_PURCHASE_POWER_KEY: &str = "TOKEN_PURCHASE_POWER_";
     const SEND_ALL_KEY: &str = "SEND_ALL_";
+    const PAUSE_BURN_KEY: &str = "PAUSE_BURN_";
 
 
     #[wasmedge_bindgen]
     pub fn init() {
         unsafe{
+
+            let (authorized, rate) = smart_contracts::get_ace_data(ZRA_CONTRACT.to_string());
+            let denomination = smart_contracts::contract_denomination(ZRA_CONTRACT.to_string());
+            let one_dolla = types::string_to_u256("1000000000000000000".to_string());
+            let one_dolla_zera = (one_dolla * denomination) / rate;
+
+            smart_contracts::hold(ZRA_CONTRACT.to_string(), one_dolla_zera.to_string());
+
           let key_ace_data1 = format!("{}{}", ACE_DATA_KEY.to_string(), "$IIT+0000".to_string());
           let key_ace_data2 = format!("{}{}", ACE_DATA_KEY.to_string(), "$RUBY+0000".to_string());
           let key_ace_data3 = format!("{}{}", ACE_DATA_KEY.to_string(), "$RUBY+0001".to_string());
           let key_ace_data4 = format!("{}{}", ACE_DATA_KEY.to_string(), "$RUBY+0002".to_string());
           let key_ace_data5 = format!("{}{}", ACE_DATA_KEY.to_string(), "$RUBY+0003".to_string());
-          smart_contracts::store_state(key_ace_data1.clone(), "1040000000000000000,1000000000000000000000000000000".to_string());
-          smart_contracts::store_state(key_ace_data2.clone(), "333333333333333333,1000000000000000000000000000".to_string());
-          smart_contracts::store_state(key_ace_data3.clone(), "333333333333333333,1000000000000000000000000000".to_string());
-          smart_contracts::store_state(key_ace_data4.clone(), "333333333333333333,1000000000000000000000000000".to_string());
-          smart_contracts::store_state(key_ace_data5.clone(), "333333333333333333,1000000000000000000000000000".to_string());
+
+          smart_contracts::store_state(key_ace_data1.clone(), "1040000000000000000,1000000000000000000000000000000".to_string()); //done
+          smart_contracts::store_state(key_ace_data2.clone(), "333333333333333333,1000000000000000000000000000".to_string()); //done
+          smart_contracts::store_state(key_ace_data3.clone(), "333333333333333333,1000000000000000000000000000".to_string()); //done
+          smart_contracts::store_state(key_ace_data4.clone(), "333333333333333333,1000000000000000000000000000".to_string()); //done
+          smart_contracts::store_state(key_ace_data5.clone(), "333333333333333333,1000000000000000000000000000".to_string()); //done
           
           let purchase_power1 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$RUBY+0000".to_string());
           let purchase_power2 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$RUBY+0001".to_string());
           let purchase_power3 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$RUBY+0002".to_string());
           let purchase_power4 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$RUBY+0003".to_string());
+          let purchase_power5 = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), "$IIT+0000".to_string());
 
-          smart_contracts::store_state(purchase_power1.clone(), "892769375666666666773897356".to_string());
-          smart_contracts::store_state(purchase_power1.clone(), "932782750000000000067217250".to_string());
-          smart_contracts::store_state(purchase_power1.clone(), "934051000000000000065949000".to_string());
-          smart_contracts::store_state(purchase_power1.clone(), "935636312500000000064363688".to_string());
+          smart_contracts::store_state(purchase_power1.clone(), "935557874884000000064442128".to_string()); //done
+          smart_contracts::store_state(purchase_power2.clone(), "932782750000000000067217250".to_string()); //done
+          smart_contracts::store_state(purchase_power3.clone(), "934051000000000000065949000".to_string()); //done
+          smart_contracts::store_state(purchase_power4.clone(), "935636312500000000064363688".to_string()); //done
+          smart_contracts::store_state(purchase_power5.clone(), "1000000000000000000000000000000".to_string()); //done
           
-          smart_contracts::store_state(STARTING_TIME_KEY.to_string(), "1733966306".to_string());
-          smart_contracts::store_state(BUCKET_NUMBER_KEY.to_string(), "586".to_string());
-          smart_contracts::store_state(MINT_SELF_KEY.to_string(), "998000000000000000000000".to_string());
-          smart_contracts::store_state(BURN_TIME_KEY.to_string(), "1733966306".to_string());
-          smart_contracts::store_state(INITIAL_RATE_KEY.to_string(), "3179880259022495537".to_string());
-          smart_contracts::store_state(TAKEN_FROM_KEY.to_string(), "48524882246110".to_string());
-          smart_contracts::store_state(UNALLOCATED_SUPPLY_KEY.to_string(), "633089492806216218".to_string());
-          smart_contracts::store_state(TOTAL_BURNED_KEY.to_string(), "0".to_string());
+          smart_contracts::store_state(STARTING_TIME_KEY.to_string(), "1733966306".to_string()); //done
+          smart_contracts::store_state(BUCKET_NUMBER_KEY.to_string(), "586".to_string()); //done
+          smart_contracts::store_state(MINT_SELF_KEY.to_string(), "997000000000000000000000".to_string()); //done
+          smart_contracts::store_state(BURN_TIME_KEY.to_string(), "1748189345".to_string()); //done
+          smart_contracts::store_state(INITIAL_RATE_KEY.to_string(), "3179880259022495537".to_string()); //done
+          smart_contracts::store_state(TAKEN_FROM_KEY.to_string(), "73191728042407".to_string()); //done
+          smart_contracts::store_state(UNALLOCATED_SUPPLY_KEY.to_string(), "579519531651778015".to_string()); //done
+          smart_contracts::store_state(TOTAL_BURNED_KEY.to_string(), "53545294308641906".to_string()); //done
         }
     }
 
@@ -164,7 +174,7 @@ pub mod zera_supply_management_v2 {
         }
     }
 
-    fn get_mint_amount(purchase_power: U256, initial_rate: U256) -> (U256, U256, i32, U256, U256)
+    fn get_mint_amount(purchase_power: U256, initial_rate: U256) -> (U256, U256, i32, U256, U256, u64)
     {
         unsafe
         {
@@ -179,20 +189,19 @@ pub mod zera_supply_management_v2 {
         let mut bucket_number = 1; // last bucket number we were in, must be > 0, start at 1
         let mut amount_taken_from_current_bucket = U256::from(0) * precision_scale; // scaled number of coins pulled //! pull from storage
 
-
         let bucket_number_state = smart_contracts::retrieve_state(BUCKET_NUMBER_KEY.to_string());
         if !bucket_number_state.is_empty(){
             bucket_number = match bucket_number_state.parse::<i32>() {
                 Ok(value) => value,
                 Err(e) => {
                     println!("Error parsing string to i32: {}", e);
-                    return (U256::zero(), U256::zero(), 0, U256::zero(), U256::zero()); // Handle the error appropriately
+                    return (U256::zero(), U256::zero(), 0, U256::zero(), U256::zero(), 0); // Handle the error appropriately
                 }
             };
         }
 
         if bucket_number > 10000 {
-            return (U256::zero(), U256::zero(), 0, U256::zero(), U256::zero());// max bucket, no more...
+            return (U256::zero(), U256::zero(), 0, U256::zero(), U256::zero(), 0);// max bucket, no more...
         }
 
         let amount_taken_from_current_bucket_state = smart_contracts::retrieve_state(TAKEN_FROM_KEY.to_string());
@@ -207,7 +216,7 @@ pub mod zera_supply_management_v2 {
 
         // Call purchase_coins
             // mint (parts)     // store          // store (parts)             // emit (1e18)
-        let (total_coins, max_bucket, taken_from_last_bucket, last_bucket_rate, amount_to_burn) = purchase_coins(
+        let (total_coins, max_bucket, taken_from_last_bucket, last_bucket_rate, amount_to_burn, months_burned) = purchase_coins(
             bucket_number, //input //!
             amount_taken_from_current_bucket, // taken from current bucket by users //!
             scaled_value, //input - USD 1e18 //!
@@ -219,7 +228,7 @@ pub mod zera_supply_management_v2 {
             cut_rate_per_bucket,
         );
 
-        return (total_coins, last_bucket_rate, max_bucket, taken_from_last_bucket, amount_to_burn);
+        return (total_coins, last_bucket_rate, max_bucket, taken_from_last_bucket, amount_to_burn, months_burned);
     }
     }
     fn purchase_coins(
@@ -232,7 +241,7 @@ pub mod zera_supply_management_v2 {
         initial_amount: U256,
         initial_percent: U256,
         cut_rate_per_bucket: U256,
-    ) -> (U256, i32, U256, U256, U256) { // Added U256 to return last bucket rate
+    ) -> (U256, i32, U256, U256, U256, u64) { // Added U256 to return last bucket rate
         let mut remaining_value = scaled_value; // The amount left to spend
         let mut total_coins = U256::zero(); // The total coins purchased
         let mut current_bucket = start_bucket; // The current bucket we're processing
@@ -241,7 +250,7 @@ pub mod zera_supply_management_v2 {
         let mut next_bucket:bool = false;
     
         // Get the burn scale for the current month upfront
-        let (burn_scale, amount_to_burn) = calculate_burn(precision_scale);
+        let (burn_scale, amount_to_burn, months_burned) = calculate_burn(precision_scale);
     
         while remaining_value > U256::zero() {
     
@@ -308,7 +317,7 @@ pub mod zera_supply_management_v2 {
         total_amount_taken_from_current_bucket /= zra_relative_scale_factor;
     
         // Return the total coins purchased, the last bucket processed, the remaining coins, and the rate of the last bucket
-        return (total_coins, current_bucket, total_amount_taken_from_current_bucket, current_bucket_rate, amount_to_burn)
+        return (total_coins, current_bucket, total_amount_taken_from_current_bucket, current_bucket_rate, amount_to_burn, months_burned)
     }
 
     // Optimized using integer-based geometric progression
@@ -347,43 +356,47 @@ fn pow(base: U256, exp: u32, scale: U256) -> U256 {
 }
 
 
-fn calculate_burn(precision_scale: U256) -> (U256, U256) {
+fn calculate_burn(precision_scale: U256) -> (U256, U256, u64) {
 
-    let seconds_elapsed: u64 = get_elapsed_time(); // burn period is once every 2.592M
-    let last_burn_seconds_elapsed: u64 = get_burned_time(); // burn period is once every 2.592M
-    let mut unallocated_supply: U256 = get_unallocated_supply(); 
-
-    let burn_periods_elapsed = seconds_elapsed / 2_592_000; // one period per 2.592M seconds
-    let last_burn_periods_elapsed = last_burn_seconds_elapsed / 2_592_000;
-
-    let mut burn_scale = precision_scale; // Start with 100% represented as precision_scale
     unsafe{
+        let pause = smart_contracts::retrieve_state(PAUSE_BURN_KEY.to_string());
+        let mut burn_amount: U256 = U256::zero();
+        let mut burn_scale = precision_scale; // Start with 100% represented as precision_scale
+        let mut last_burn_periods_elapsed = 0;
+        
+    if pause != "1" {  
+        let seconds_elapsed: u64 = get_elapsed_time(); // burn period is once every 2.592M
+        let last_burn_seconds_elapsed: u64 = get_burned_time(); // burn period is once every 2.592M
+        let mut unallocated_supply: U256 = get_unallocated_supply(); 
 
-    let mut burn_amount: U256 = U256::zero();
 
-    let mut x = 0;
-    let mut month =  burn_periods_elapsed - last_burn_periods_elapsed + 1;
+        let burn_periods_elapsed = seconds_elapsed / 2_592_000; // one period per 2.592M seconds
+        last_burn_periods_elapsed = last_burn_seconds_elapsed / 2_592_000;
 
-    while x < last_burn_periods_elapsed{
-        let burn_rate = if month <= 3 {
-            U256::from(125) // 1.25% burn per month
-        } else if month <= 9 {
-            U256::from(250) // 2.5% burn per month
-        } else if month <= 21 {
-            U256::from(500) // 5% burn per month
-        } else if month <= 45 {
-            U256::from(1000) // 10% burn per month
-        } else if month <= 93 {
-            U256::from(2000) // 20% burn per month
-        } else {
-            U256::from(4000) // 40% burn per month
-        };
+        let mut x = 0;
+        let mut month =  burn_periods_elapsed - last_burn_periods_elapsed + 1;
 
-        let temp_burn_amount = (unallocated_supply * burn_rate) / U256::from(10000);
-        unallocated_supply -= temp_burn_amount;
-        burn_amount += temp_burn_amount;
-        x += 1;
-        month += 1;
+        while x < last_burn_periods_elapsed{
+            let burn_rate = if month <= 3 {
+                U256::from(125) // 1.25% burn per month
+            } else if month <= 9 {
+                U256::from(250) // 2.5% burn per month
+            } else if month <= 21 {
+                U256::from(500) // 5% burn per month
+            } else if month <= 45 {
+                U256::from(1000) // 10% burn per month
+            } else if month <= 93 {
+                U256::from(2000) // 20% burn per month
+            } else {
+                U256::from(4000) // 40% burn per month
+            };
+
+            let temp_burn_amount = (unallocated_supply * burn_rate) / U256::from(10000);
+            unallocated_supply -= temp_burn_amount;
+            burn_amount += temp_burn_amount;
+            x += 1;
+            month += 1;
+        }
     }
 
     let mut total_burned: U256 = get_total_burned(); 
@@ -394,7 +407,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
 
     burn_scale = remaining_amount * precision_scale / initial_amount;
 
-    (burn_scale, burn_amount) // Return the correct tuple
+    (burn_scale, burn_amount, last_burn_periods_elapsed) // Return the correct tuple
     }
     
 }
@@ -422,7 +435,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
         smart_contracts::store_state(key_wallet_address.clone(), wallet_address.clone());
         smart_contracts::store_state(key_current_state.clone(), START_STATE.to_string());  
         
-        let mut all_txn_hash= smart_contracts::retrieve_state(ALL_TXNS_KEY.to_string());
+        let mut all_txn_hash = smart_contracts::retrieve_state(ALL_TXNS_KEY.to_string());
         all_txn_hash = all_txn_hash + &txn_hash + ",";
         smart_contracts::store_state(ALL_TXNS_KEY.to_string(), all_txn_hash.clone());
         }
@@ -433,7 +446,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
         unsafe{
             let (auto, rate) = smart_contracts::get_ace_data(ZRA_CONTRACT.to_string());
 
-            let balance = smart_contracts::wallet_balance(ZRA_CONTRACT.to_string(), "6sjYC4Rir3jFi5gdboB2RxNooNaRmNWsTmJx8gHui4Tx".to_string());
+            let balance = smart_contracts::wallet_balance(ZRA_CONTRACT.to_string(), PROXY_WALLET.to_string());
 
             let mint_state = smart_contracts::retrieve_state(MINT_SELF_KEY.to_string());
 
@@ -462,8 +475,8 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
                 else{
                     new_mint_left = mint_left - lowest_value;
                 }
-
-                smart_contracts::mint(ZRA_CONTRACT.to_string(), mint_amount.to_string(), "6sjYC4Rir3jFi5gdboB2RxNooNaRmNWsTmJx8gHui4Tx".to_string());
+                
+                smart_contracts::delegate_mint(ZRA_CONTRACT.to_string(), mint_amount.to_string(), PROXY_WALLET.to_string(), PROXY_WALLET.to_string());
 
 
                 smart_contracts::store_state(MINT_SELF_KEY.to_string(), new_mint_left.to_string());
@@ -476,10 +489,10 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
     pub fn swap(contract_id: String, amount: String, min_zra: String){
       unsafe {
 
-        let sc_wallet_ = smart_contracts::smart_contract_wallet();
+        let sc_wallet_ = smart_contracts::called_smart_contract_wallet();
         let sc_wallet = sc_wallet_.clone();
 
-        if sc_wallet != "6sjYC4Rir3jFi5gdboB2RxNooNaRmNWsTmJx8gHui4Tx" {
+        if sc_wallet != PROXY_WALLET.to_string(){
             let emit1 = format!("Failed: Unauthorized sender key: {}", sc_wallet.clone());
             smart_contracts::emit(emit1.clone());
             return;
@@ -512,6 +525,18 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
             return;
         }
 
+        let purchase_power_key = format!("{}{}", TOKEN_PURCHASE_POWER_KEY.to_string(), contract_id.clone());
+
+        let purchase_power_string = smart_contracts::retrieve_state(purchase_power_key.clone());
+
+        if(!types::is_valid_u256(purchase_power_string.clone()))
+        {
+            smart_contracts::emit("Failed: Invalid purchase power.".to_string());
+            return;
+        }
+
+        let purchase_power = types::string_to_u256(purchase_power_string.clone());
+
         if rate_str == "0"
         {
             let (authorized, rate_temp) = smart_contracts::get_ace_data(contract_id.clone());
@@ -529,8 +554,15 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
 
         let denomination = smart_contracts::contract_denomination(contract_id.clone());
         let u256_amount = types::string_to_u256(amount.clone());
-        let purchase_power = (rate * u256_amount) / denomination;
-        let (mint_amount, last_bucket_rate, max_bucket, taken_from_last_bucket, amount_to_burn) = get_mint_amount(purchase_power, initial_rate);
+        let purchase_power_user = (rate * u256_amount) / denomination;
+
+        if(purchase_power_user > purchase_power){
+            let message_str = format!("Failed: Purchase power exceeded: {}, purchase power user: {}", purchase_power.clone(), purchase_power_user.to_string());
+            smart_contracts::emit(message_str.clone());
+            return;
+        }
+        
+        let (mint_amount, last_bucket_rate, max_bucket, taken_from_last_bucket, amount_to_burn, months_burned) = get_mint_amount(purchase_power_user, initial_rate);
 
         if(mint_amount == U256::zero()){
             smart_contracts::emit("Failed: No more tokens available for swap.".to_string());
@@ -545,7 +577,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
             return;
         }
 
-        if !smart_contracts::hold(contract_id.clone(), amount.clone())
+        if !smart_contracts::transfer(contract_id.clone(), amount.clone(), PROXY_WALLET.to_string())
         {
             smart_contracts::emit("Failed: Hold.".to_string());
             return;
@@ -555,9 +587,9 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
 
         let mint_amount_str = mint_amount.to_string();
 
-        if !smart_contracts::mint(ZRA_CONTRACT.to_string(), mint_amount_str.clone(), wallet_address.clone())
+        if !smart_contracts::delegate_mint(ZRA_CONTRACT.to_string(), mint_amount_str.clone(), wallet_address.clone(), PROXY_WALLET.to_string())
         {
-            smart_contracts::send(contract_id.clone(), amount.clone(), wallet_address.clone());
+            smart_contracts::delegate_send(contract_id.clone(), amount.clone(), wallet_address.clone(), PROXY_WALLET.to_string());
             smart_contracts::emit("Failed: Minting.".to_string());
             return;
         }
@@ -577,9 +609,22 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
         if amount_to_burn > U256::zero()
         {
             let burn_str = amount_to_burn.to_string();
-            smart_contracts::mint(ZRA_CONTRACT.to_string(), burn_str.clone(), BURN_WALLET.to_string());
-            let current_time = smart_contracts::last_block_time();
-            smart_contracts::store_state(BURN_TIME_KEY.to_string(), current_time.to_string());
+            smart_contracts::delegate_mint(ZRA_CONTRACT.to_string(), burn_str.clone(), BURN_WALLET.to_string(), PROXY_WALLET.to_string());
+            let state_burn_time_ = smart_contracts::retrieve_state(BURN_TIME_KEY.to_string());
+            let state_burn_time = state_burn_time_.clone();
+            let mut burn_time = 0 as u64;
+        
+            burn_time = match state_burn_time.parse::<u64>() {
+                Ok(time) => time,
+                Err(e) => {
+                    smart_contracts::emit(format!("Failed: Error parsing state_starting_time: {}", e));
+                    return; // or handle the error appropriately
+                }
+            };
+            
+            burn_time = burn_time + (months_burned * 2_592_000); // 2.592M seconds in a month
+
+            smart_contracts::store_state(BURN_TIME_KEY.to_string(), burn_time.to_string());
             update_total_burned(amount_to_burn);
         }
 
@@ -591,8 +636,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
         let last_bucket_rate_string = "Success: Last rate: ".to_string() + &last_bucket_rate.to_string();
     
         smart_contracts::emit(last_bucket_rate_string.clone());
-      }
-
+    }
     }
 
     //function to set the accepted tokens for supply management
@@ -682,7 +726,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
 
                 if current_time > send_all_time{
                     smart_contracts::clear_state(SEND_ALL_KEY.to_string());
-                    smart_contracts::send_all(wallet_address.clone());
+                    smart_contracts::delegate_send_all(wallet_address.clone(), PROXY_WALLET.to_string());
                     smart_contracts::emit("Success: Sent all coins".to_string());
                     return;
                 }
@@ -700,10 +744,11 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
     pub fn refund(txn_hash: String, option: String)
     {
     unsafe{
-        let sc_wallet_ = smart_contracts::smart_contract_wallet();
+
+        let sc_wallet_ = smart_contracts::called_smart_contract_wallet();
         let sc_wallet = sc_wallet_.clone();
 
-        if sc_wallet != "6sjYC4Rir3jFi5gdboB2RxNooNaRmNWsTmJx8gHui4Tx" {
+        if sc_wallet != PROXY_WALLET.to_string() {
             let emit1 = format!("Failed: Unauthorized sender key: {}", sc_wallet.clone());
             smart_contracts::emit(emit1.clone());
             return;
@@ -765,16 +810,16 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
                 let refund_later = sent_amount - refund_amount;
 
                 if refund_amount > U256::zero() {
-
-                if !smart_contracts::hold(ZRA_CONTRACT.to_string(), amount_minted.clone()){
+                
+                if !smart_contracts::transfer(ZRA_CONTRACT.to_string(), amount_minted.clone(), PROXY_WALLET.to_string()){
                     let emit3 = "Failed: Hold.".to_string();
                     smart_contracts::emit(emit3.clone());
                     return;
                 }
 
-                if !smart_contracts::send(token_sent.clone(), refund_amount.to_string(), wallet_address.clone()) {
+                if !smart_contracts::delegate_send(token_sent.clone(), refund_amount.to_string(), wallet_address.clone(), PROXY_WALLET.to_string()) { 
 
-                    smart_contracts::send(ZRA_CONTRACT.to_string(), amount_minted.clone(), wallet_address.clone());
+                    smart_contracts::delegate_send(ZRA_CONTRACT.to_string(), amount_minted.clone(), wallet_address.clone(), PROXY_WALLET.to_string());
 
                     let emit4 = "Failed: Refund.".to_string();
                     smart_contracts::emit(emit4.clone());
@@ -829,7 +874,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
                     return;
                 }
 
-                if !smart_contracts::send(token_sent.clone(), refund_later.clone(), wallet_address.clone()) {
+                if !smart_contracts::delegate_send(token_sent.clone(), refund_later.clone(), wallet_address.clone(), PROXY_WALLET.to_string()) {
                     let emit6 = "Failed: Refund.".to_string();
                     smart_contracts::emit(emit6.clone());
                     return;
@@ -858,16 +903,15 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
 
                 if refund_amount > U256::zero() {
 
-                
-                if !smart_contracts::hold(ZRA_CONTRACT.to_string(), amount_minted.clone()){
+                if !smart_contracts::transfer(ZRA_CONTRACT.to_string(), amount_minted.clone(), PROXY_WALLET.to_string()){
                     let emit3 = "Failed: Hold.".to_string();
                     smart_contracts::emit(emit3.clone());
                     return;
                 }
 
-                if !smart_contracts::send(token_sent.clone(), refund_amount.to_string(), wallet_address.clone()) {
+                if !smart_contracts::delegate_send(token_sent.clone(), refund_amount.to_string(), wallet_address.clone(), PROXY_WALLET.to_string()) {
 
-                    smart_contracts::send(ZRA_CONTRACT.to_string(), amount_minted.clone(), wallet_address.clone());
+                    smart_contracts::delegate_send(ZRA_CONTRACT.to_string(), amount_minted.clone(), wallet_address.clone(), PROXY_WALLET.to_string());
 
                     let emit4 = "Failed: Refund.".to_string();
                     smart_contracts::emit(emit4.clone());
@@ -887,8 +931,8 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
                 let emit7 = "Success: ".to_string();
                 smart_contracts::emit(emit7.clone());
 
-                smart_contracts::send(ZRA_CONTRACT.to_string(), amount_minted.clone(), TREASURY_WALLET.to_string());
-                smart_contracts::send(token_sent.to_string(), treasury_amount.to_string(), TREASURY_WALLET.to_string());
+                smart_contracts::delegate_send(ZRA_CONTRACT.to_string(), amount_minted.clone(), TREASURY_WALLET.to_string(), PROXY_WALLET.to_string());
+                smart_contracts::delegate_send(token_sent.to_string(), treasury_amount.to_string(), TREASURY_WALLET.to_string(), PROXY_WALLET.to_string());
             }
             else{
                 let emit5 = "Failed: Invalid state data.".to_string();
@@ -950,7 +994,7 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
                     let amount_sent = smart_contracts::retrieve_state(key_amount_sent.clone());
                     let token_sent = smart_contracts::retrieve_state(key_token_sent.clone());
 
-                    smart_contracts::send(token_sent.clone(), amount_sent.clone(), TREASURY_WALLET.to_string());
+                    smart_contracts::delegate_send(token_sent.clone(), amount_sent.clone(), TREASURY_WALLET.to_string(), PROXY_WALLET.to_string());
 
                     smart_contracts::clear_state(key_time.clone());
                     smart_contracts::clear_state(key_amount_minted.clone());
@@ -997,19 +1041,49 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
     #[wasmedge_bindgen]
     pub fn burn(){
         unsafe{
+
+            let sc_wallet_ = smart_contracts::called_smart_contract_wallet();
+            let sc_wallet = sc_wallet_.clone();
+
+            if sc_wallet != PROXY_WALLET.to_string() {
+                let emit1 = format!("Failed: Unauthorized sender key: {}", sc_wallet.clone());
+                smart_contracts::emit(emit1.clone());
+                return;
+            }
+
             let precision_scale = U256::from(1_000_000_000_000_000_000u64); // Scale by 10^18 for higher precision
-            let (burn_scale, amount_to_burn) = calculate_burn( precision_scale);
+            let (burn_scale, amount_to_burn, months_burned) = calculate_burn( precision_scale);
 
             if amount_to_burn > U256::zero()
             {
                 let mint_amount: U256 = U256::zero();
                 let burn_str = amount_to_burn.to_string();
-                smart_contracts::mint(ZRA_CONTRACT.to_string(), burn_str.clone(), BURN_WALLET.to_string());
-                let current_time = smart_contracts::last_block_time();
-                smart_contracts::store_state(BURN_TIME_KEY.to_string(), current_time.to_string());
+
+                if(!smart_contracts::delegate_mint(ZRA_CONTRACT.to_string(), burn_str.clone(), BURN_WALLET.to_string(), PROXY_WALLET.to_string()))
+                {
+                    return;
+                }
+
+                let state_burn_time_ = smart_contracts::retrieve_state(BURN_TIME_KEY.to_string());
+                let state_burn_time = state_burn_time_.clone();
+                let mut burn_time = 0 as u64;
+        
+                burn_time = match state_burn_time.parse::<u64>() {
+                    Ok(time) => time,
+                    Err(e) => {
+                        smart_contracts::emit(format!("Failed: Error parsing state_starting_time: {}", e));
+                        return; // or handle the error appropriately
+                    }
+                };
+            
+                burn_time = burn_time + (months_burned * 2_592_000); // 2.592M seconds in a month
+
+                smart_contracts::store_state(BURN_TIME_KEY.to_string(), burn_time.to_string());
                 update_total_burned(amount_to_burn);
                 update_unallocated_supply(mint_amount, amount_to_burn);
+
             }
+
         } 
     }
 
@@ -1020,13 +1094,43 @@ fn calculate_burn(precision_scale: U256) -> (U256, U256) {
             let pub_key = smart_contracts::public_key();
 
             if pub_key != "gov_$ZRA+0000" {
-                let emit1 = format!("Failed: Unauthorized sender key: {}", pub_key.clone());
-                smart_contracts::emit(emit1.clone());
                 return;
             }
 
             smart_contracts::store_state(MINT_SELF_KEY.to_string(), amount.clone());
             smart_contracts::emit("Success: Minting allowed.".to_string());
+        }
+    }
+
+    #[wasmedge_bindgen]
+    pub fn pause_burn()
+    {
+        unsafe{
+            let pub_key = smart_contracts::public_key();
+
+            if pub_key != "gov_$ZRA+0000" {
+                return;
+            }
+
+            smart_contracts::store_state(PAUSE_BURN_KEY.to_string(), "1".to_string());
+            smart_contracts::emit("Success: Burn is paused.".to_string());
+        }
+    }
+
+    #[wasmedge_bindgen]
+    pub fn resume_burn()
+    {
+        unsafe{
+            let pub_key = smart_contracts::public_key();
+
+            if pub_key != "gov_$ZRA+0000" {
+                return;
+            }
+
+            smart_contracts::clear_state(PAUSE_BURN_KEY.to_string());
+            let current_time = smart_contracts::last_block_time();
+            smart_contracts::store_state(BURN_TIME_KEY.to_string(), current_time.to_string());
+            smart_contracts::emit("Success: Burn will resume.".to_string());
         }
     }
 
